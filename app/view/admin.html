@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <script src="https://cdn.bootcss.com/vue/2.5.17-beta.0/vue.min.js"></script>
+    <!-- 引入样式 -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-ui/lib/theme-chalk/index.css"
+    />
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.bootcss.com/axios/0.18.0/axios.js"></script>
+    <title>Document</title>
+  </head>
+  <style>
+    .app-box{
+        overflow: hidden;
+    }
+    .app-box *{
+        float: left;
+    }
+    .radio-box{
+        width:140px;
+    }
+    .radio-box div{
+        width: 100%;
+        padding: 6px 0px;
+    }
+    .handle-box{
+        width: 300px;
+    }
+    .group-list{
+        width: 200px;
+    }
+    li{
+        list-style-type: none;
+    }
+  </style>
+  <body>
+    <ul id="app" class="app-box">
+        <div class="radio-box">
+            <div v-for="radio in Radios" :key="radio._id">
+                <el-radio  v-if="!radio.group" v-model="art" :label="radio._id" >${radio.name}</el-radio>
+            </div>
+        </div>
+        <div class="radio-box">
+            <div v-for="radio in Groups" :key="radio._id">
+                <el-radio v-model="group" :label="radio._id" >${radio.name}</el-radio>
+            </div>
+        </div>
+        <div class="handle-box">
+            <el-input></el-input>
+            <el-button @click="Sure">确定</el-button>
+        </div>
+        <ul class="group-list">
+            <li>
+                <el-radio v-model="ygroup" label="321" >321</el-radio>
+            </li>
+        </ul>
+    </div>
+  </body>
+</html>
+<script>
+  var App = new window.Vue({
+    el: '#app',
+    data: {
+      Radios: [],
+      Groups: [],
+      art: '',
+      group: '',
+      ygroup: ''
+    },
+    methods: {
+      Sure () {
+        console.log(this.art, this.group)
+        window.axios.post('/api/addgroup', {
+          art: this.art,
+          group: this.group
+        }).then(res => {
+          console.log(res)
+          return window.axios.get(`api/getArtGroup/${this.group}`)
+        }).then(res => {
+          console.log(res)
+          // this.Group = res.data
+        })
+      }
+    },
+    created () {
+      window.axios.get('/api/getarts').then(res => {
+        console.log(res.data)
+        this.Radios = res.data
+        return window.axios.get('/api/getgroups')
+      }).then(res => {
+        this.Groups = res.data
+      }).catch(err => console.log(err))
+    },
+    delimiters: ['${', '}']
+  })
+console.log(App)
+</script>

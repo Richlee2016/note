@@ -1,0 +1,13 @@
+{
+  "extends": ["tslint-config-egg"],
+  "rules": {
+    "switch-default": false,
+    "trailing-comma": false,
+    "max-line-length": false,
+    "no-var-requires": false,
+    "no-string-literal": false,
+    "only-arrow-functions": false,
+    "linebreak-style": false,
+    "ter-prefer-arrow-callback": false
+  }
+}

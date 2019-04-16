@@ -6,7 +6,8 @@ export default class HomeController extends Controller {
   @Get('/')
   public async index() {
     const { ctx } = this;
-    ctx.body = 1;
+    const res = await ctx.service.home.getGroups();
+    await ctx.render('home.html', { data: res || [] });
   }
   // @Get('/savezf')
   public async savezf() {
@@ -48,7 +49,7 @@ export default class HomeController extends Controller {
     ctx.body = res;
   }
 
-  @Get('api/getArtGroup/:id')
+  @Get('/api/getArtGroup/:id')
   public async getArtGroup() {
     const { ctx } = this;
     const { id } = ctx.params;

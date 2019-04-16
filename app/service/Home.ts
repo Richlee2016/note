@@ -60,7 +60,7 @@ export default class Test extends Service {
     const { ctx, app: { mongoose: { Types: { ObjectId } } } } = this;
     const group = await ctx.model.Group.aggregate([
       {
-        $match: { name: ObjectId(id) }
+        $match: { _id: ObjectId(id) }
       },
       {
         $lookup: {
@@ -68,6 +68,14 @@ export default class Test extends Service {
           localField: 'group',
           foreignField: '_id',
           as: 'artGroup'
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          'artGroup._id': 1,
+          'artGroup.name': 1
         }
       }
     ]).exec();

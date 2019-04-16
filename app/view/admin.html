@@ -35,6 +35,16 @@
     .group-list{
         width: 200px;
     }
+    .group-list h3{
+      width: 100%;
+    }
+    .group-list ul{
+      width: 100%;
+    }
+    .group-list ul li{
+      width: 100%;
+      padding:6px 0px;
+    }
     li{
         list-style-type: none;
     }
@@ -42,24 +52,26 @@
   <body>
     <ul id="app" class="app-box">
         <div class="radio-box">
-            <div v-for="radio in Radios" :key="radio._id">
-                <el-radio  v-if="!radio.group" v-model="art" :label="radio._id" >${radio.name}</el-radio>
+            <div v-for="radio in Radios" v-if="!radio.group" :key="radio._id">
+                <el-radio v-model="art" :label="radio._id" >${radio.name}</el-radio>
             </div>
         </div>
         <div class="radio-box">
             <div v-for="radio in Groups" :key="radio._id">
-                <el-radio v-model="group" :label="radio._id" >${radio.name}</el-radio>
+                <el-radio v-model="group" :label="radio._id" @change='onGroup'>${radio.name}</el-radio>
             </div>
         </div>
         <div class="handle-box">
-            <el-input></el-input>
             <el-button @click="Sure">确定</el-button>
         </div>
-        <ul class="group-list">
-            <li>
-                <el-radio v-model="ygroup" label="321" >321</el-radio>
-            </li>
-        </ul>
+        <div class="group-list">
+          <h3>${yname}</h3>
+          <ul>
+              <li v-for="radio in Ygroups" :key="radio._id">
+                  <el-radio v-model="ygroup" :label="radio._id" >${radio.name}</el-radio>
+              </li>
+          </ul>
+        </div>
     </div>
   </body>
 </html>
@@ -69,22 +81,31 @@
     data: {
       Radios: [],
       Groups: [],
+      Ygroups:[],
       art: '',
       group: '',
-      ygroup: ''
+      ygroup: '',
+      yname:""
     },
     methods: {
+      onGroup(id){
+        window.axios.get(`api/getArtGroup/${id}`).then(res => {
+          this.yname = res.data[0]?res.data[0].name : ""
+          this.Ygroups = res.data[0]?res.data[0].artGroup : []
+        })
+      },
       Sure () {
         console.log(this.art, this.group)
         window.axios.post('/api/addgroup', {
           art: this.art,
           group: this.group
         }).then(res => {
-          console.log(res)
+          if(res.data.ok === 1){
+            this.Radios =  this.Radios.filter(o => o._id !== this.art)
+          }
           return window.axios.get(`api/getArtGroup/${this.group}`)
         }).then(res => {
-          console.log(res)
-          // this.Group = res.data
+          this.Ygroups = res.data[0]?res.data[0].artGroup : []
         })
       }
     },
@@ -95,6 +116,10 @@
         return window.axios.get('/api/getgroups')
       }).then(res => {
         this.Groups = res.data
+        if(this.Groups.length > 1){
+          this.group = this.Groups[0]._id
+          this.onGroup(this.group)
+        }
       }).catch(err => console.log(err))
     },
     delimiters: ['${', '}']
